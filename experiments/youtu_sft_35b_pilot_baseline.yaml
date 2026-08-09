@@ -1,0 +1,10 @@
+extends: /home/tione/notebook/agent_data/skillforge_cua_gym/youtu_sft_35b_calendar_baseline.yaml
+
+run:
+  test_file: /home/tione/notebook/agent_data/skillforge_pilot/pilot_windows_ags.jsonl
+  result_dir: /home/tione/notebook/agent_data/skillforge_pilot/results/youtu_sft_35b_pilot_baseline
+  start_index: 0
+  end_index: 10
+  workers: 2
+  before_action_delay_seconds: 1.0
+  case_max_attempts: 1
