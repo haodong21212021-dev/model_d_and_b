@@ -39,6 +39,19 @@ As a result, candidates are not executable by default. The pipeline now:
 3. includes instruction examples in every manifest;
 4. marks low-similarity and `other` clusters as `needs_review`.
 
+The revised complete-link run produced:
+
+| Metric | Revised result |
+|---|---:|
+| Candidate groups | 11 |
+| Automatically admissible candidates | 3 |
+| Candidates requiring review | 8 |
+| Successful trajectories covered | 25 |
+
+The lower coverage is intentional: transitive similarity and terminal actions
+were previously merging unrelated tasks. Candidate admission remains provisional
+until cross-instance MockApp validation passes.
+
 ## Hardened MockApp validation
 
 A parameterized `createCalendarEvent` skill was tested on the Google Calendar
