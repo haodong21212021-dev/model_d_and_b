@@ -52,6 +52,19 @@ npm run check:calendar-skill
 The skill receives only the rendered page. Setup and reward inspection use the
 private administrator channel in the validation harness.
 
+## Freeze a CUA-Gym split
+
+```bash
+python -m pip install -e ".[data]"
+python scripts/build_cua_gym_split.py /path/to/tasks.parquet \
+  --output artifacts/cua_gym_mock_web_split.json \
+  --seed skillforge-v1
+```
+
+Applications are separated into train, development, and unseen-test sets. Tasks
+within train applications are independently split into skill induction,
+validation, and seen-application test partitions.
+
 ## Pilot gates
 
 The next stages compile approved candidates to restricted NodeREPL functions and

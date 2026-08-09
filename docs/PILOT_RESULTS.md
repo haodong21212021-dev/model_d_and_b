@@ -68,6 +68,23 @@ Result: **3/3 verified**. This proves parameter substitution and programmatic
 reward validation work end to end. It does not yet establish an agent-level
 success-rate improvement.
 
+## Frozen CUA-Gym split
+
+The public task index currently exposes 10,910 tasks, including 1,075 MockApp
+tasks across 29 applications. A deterministic application-disjoint split was
+created with seed `skillforge-v1`:
+
+| Partition | Tasks |
+|---|---:|
+| Skill induction | 500 |
+| Skill validation | 165 |
+| Seen-app test | 166 |
+| Unseen-app development | 139 |
+| Unseen-app test | 105 |
+
+Only the induction partition may produce skills. Validation admits or rejects
+skills, while both test partitions remain frozen.
+
 ## Next experimental gate
 
 The next run requires a visible model endpoint or GPU allocation. It will compare
