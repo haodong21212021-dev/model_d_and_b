@@ -26,9 +26,15 @@ Resource audit date: 2026-08-09
 | Screen / screenshot | 1024×768 / 499,353 bytes |
 | CUA-Gym-Hub | 98 MockApps available |
 | Existing WAA trajectories | 148 total, 89 strict successes |
-| Qwen3.6-35B-A3B endpoint | Configuration and credential present, service returns HTTP 503 |
-| Qwen3.7-Plus endpoint | Active; `/models` and a chat completion both returned HTTP 200 |
-| Internal historical endpoint | Unreachable |
+| Qwen3.7-Plus (DashScope) | Active; returns a real chat completion |
+| MiniMax-M3 (hosted) | Active; returns a real chat completion |
+| Qwen3.6-35B-A3B (`ms-xld6dn4f`) | HTTP 503 on every path variant |
+| Other `ms-*` TI gateway endpoints | Either HTTP 503, or HTTP 200 carrying `InvalidParameter.TGWRouteFailure`; none serve completions |
+| Cluster `sglang` endpoints | Unreachable from this host |
+
+A gateway that answers HTTP 200 with a `TGWRouteFailure` body is not a usable
+model service, so endpoint checks must assert a parsed completion rather than a
+status code.
 
 The AGS smoke sandbox was closed after the screenshot check. A later resource
 check found 12 unrelated `harness_opt` sandboxes active at once, each configured
@@ -105,8 +111,10 @@ only be considered after the non-parametric skill experiment passes.
 
 ## Current blockers
 
-1. The configured Qwen3.6 endpoint responds with HTTP 503. Qwen3.7-Plus is a
-   usable fallback.
+1. The configured Qwen3.6 endpoint responds with HTTP 503 on every path variant.
+   Qwen3.7-Plus and MiniMax-M3 are the only endpoints that currently return
+   completions, and both are third-party hosted services rather than the
+   open-weight model the study targets.
 2. The remote host cannot directly reach Hugging Face. The task parquet was
    transferred through the cloud agent. Three selected official task bundles
    were extracted locally and transferred for smoke evaluation.
