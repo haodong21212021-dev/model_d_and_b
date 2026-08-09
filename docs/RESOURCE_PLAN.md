@@ -26,6 +26,8 @@ Resource audit date: 2026-08-09
 | Screen / screenshot | 1024×768 / 499,353 bytes |
 | CUA-Gym-Hub | 98 MockApps available |
 | Existing WAA trajectories | 148 total, 89 strict successes |
+| `youtu-SFT-35B-a3B` (`ms-559hnlc2`, sglang) | Active; text and image inputs both work; model id is `/data/model`; no auth header required |
+| `qwen35B-a3B` (`ms-s6g4zvpn`, vLLM) | Active; text and image inputs both work; model id is `model` |
 | Qwen3.7-Plus (DashScope) | Active; returns a real chat completion |
 | MiniMax-M3 (hosted) | Active; returns a real chat completion |
 | Qwen3.6-35B-A3B (`ms-xld6dn4f`) | HTTP 503 on every path variant |
@@ -35,6 +37,12 @@ Resource audit date: 2026-08-09
 A gateway that answers HTTP 200 with a `TGWRouteFailure` body is not a usable
 model service, so endpoint checks must assert a parsed completion rather than a
 status code.
+
+Both 35B endpoints answered four concurrent requests without error. Median
+latency was about 8.8 seconds for `youtu-SFT-35B-a3B` and about 5.2 seconds for
+`qwen35B-a3B`. Reasoning traces are only suppressed through
+`chat_template_kwargs.enable_thinking`; a top-level `enable_thinking` field is
+ignored. The existing `qwenvl_v2` agent already sends the supported form.
 
 The AGS smoke sandbox was closed after the screenshot check. A later resource
 check found 12 unrelated `harness_opt` sandboxes active at once, each configured
@@ -69,10 +77,8 @@ primary experiment.
 This is sufficient for the first model-level A/B gate:
 
 1. **Model**
-   - use the verified Qwen3.7-Plus endpoint with concurrency 2;
-   - preferably restore the Qwen3.6-35B-A3B endpoint for an open-weight-scale
-     comparison; or
-   - allocate 2× H20 96GB for one TP=2 inference replica.
+   - use `qwen35B-a3B` as the base policy and `youtu-SFT-35B-a3B` as the
+     fine-tuned comparison; both are verified and need no GPU allocation.
 2. **Concurrency**
    - model concurrency: 2 stable requests;
    - two **reserved** AGS Windows sandboxes, not shared with datagen;
@@ -91,9 +97,8 @@ least 15% fewer actions/model calls without lower success.
 ## Recommended formal experiment
 
 1. **Model serving**
-   - hosted endpoint with stable concurrency 4–8; or
-   - 4× H20: two TP=2 inference replicas;
-   - up to 8× H20 only if running planner/verifier replicas concurrently.
+   - the two verified 35B endpoints at concurrency 4, which is already
+     demonstrated; raise only after measuring error rates at higher load.
 2. **AGS**
    - 4–8 concurrent Windows sandboxes;
    - TTL of at least 24 hours, or explicit per-task recreation;
@@ -111,10 +116,9 @@ only be considered after the non-parametric skill experiment passes.
 
 ## Current blockers
 
-1. The configured Qwen3.6 endpoint responds with HTTP 503 on every path variant.
-   Qwen3.7-Plus and MiniMax-M3 are the only endpoints that currently return
-   completions, and both are third-party hosted services rather than the
-   open-weight model the study targets.
+1. Resolved. Two working 35B endpoints are now available and verified for
+   multimodal input, so the study no longer depends on hosted third-party
+   models. The older `ms-xld6dn4f` endpoint remains HTTP 503.
 2. The remote host cannot directly reach Hugging Face. The task parquet was
    transferred through the cloud agent. Three selected official task bundles
    were extracted locally and transferred for smoke evaluation.
