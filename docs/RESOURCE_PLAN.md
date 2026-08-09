@@ -27,9 +27,14 @@ Resource audit date: 2026-08-09
 | CUA-Gym-Hub | 98 MockApps available |
 | Existing WAA trajectories | 148 total, 89 strict successes |
 | Qwen3.6-35B-A3B endpoint | Configuration and credential present, service returns HTTP 503 |
+| Qwen3.7-Plus endpoint | Active; `/models` and a chat completion both returned HTTP 200 |
 | Internal historical endpoint | Unreachable |
 
-The AGS smoke sandbox was closed after the screenshot check.
+The AGS smoke sandbox was closed after the screenshot check. A later resource
+check found 12 unrelated `harness_opt` sandboxes active at once, each configured
+with 4 CPU cores and 8 GiB memory. A pilot sandbox created during that workload
+returned repeated HTTP 500 errors from `/screenshot`, so scientific A/B runs
+should use reserved capacity rather than compete with that job.
 
 ### Public CUA-Gym data currently released
 
@@ -58,11 +63,13 @@ primary experiment.
 This is sufficient for the first model-level A/B gate:
 
 1. **Model**
-   - restore one OpenAI-compatible multimodal Qwen3.6-35B-A3B endpoint; or
+   - use the verified Qwen3.7-Plus endpoint with concurrency 2;
+   - preferably restore the Qwen3.6-35B-A3B endpoint for an open-weight-scale
+     comparison; or
    - allocate 2× H20 96GB for one TP=2 inference replica.
 2. **Concurrency**
    - model concurrency: 2 stable requests;
-   - AGS Windows sandboxes: 2;
+   - two **reserved** AGS Windows sandboxes, not shared with datagen;
    - sandbox TTL: at least 2 hours.
 3. **Pilot workload**
    - 3 train applications and 3 held-out applications;
@@ -98,10 +105,17 @@ only be considered after the non-parametric skill experiment passes.
 
 ## Current blockers
 
-1. The configured Qwen endpoint responds with HTTP 503 for both `/models` and
-   `/chat/completions`.
+1. The configured Qwen3.6 endpoint responds with HTTP 503. Qwen3.7-Plus is a
+   usable fallback.
 2. The remote host cannot directly reach Hugging Face. The task parquet was
-   transferred through the cloud agent; the larger task archive transfer is
-   slower but not required for split construction.
+   transferred through the cloud agent. Three selected official task bundles
+   were extracted locally and transferred for smoke evaluation.
 3. The remote Python environment was missing `sshtunnel` and `vncdotool`; both
    were installed and AGS sandbox creation now passes.
+4. The available runtime is Python GuiAgent + `V2ActionSpace`; no NodeREPL
+   implementation or repository is present in the accessible code. A true
+   NodeREPL-vs-NodeREPL+Skill comparison needs that repository/path or a new
+   adapter implementation.
+5. The current AGS pool is occupied by 12 external datagen sandboxes. The
+   corrected baseline run was stopped after repeated screenshot failures and
+   produced no valid scientific score.

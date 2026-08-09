@@ -85,6 +85,21 @@ created with seed `skillforge-v1`:
 Only the induction partition may produce skills. Validation admits or rejects
 skills, while both test partitions remain frozen.
 
+## Model and AGS smoke
+
+- Qwen3.7-Plus model listing and text completion both returned HTTP 200.
+- Three official Google Calendar task bundles were extracted, materialized
+  against the hosted MockApp, and converted for Windows AGS.
+- AGS sandbox create/screenshot/close passed before the shared datagen workload
+  started.
+- The first baseline attempt exposed a task-conversion bug (`python3
+  /home/user/...` was not converted to Windows Python).
+- After correcting setup and browser launch, the shared AGS pool contained 12
+  unrelated datagen sandboxes. The new sandbox returned repeated HTTP 500
+  screenshot errors. The run was stopped and its sandbox explicitly cleaned.
+
+Neither failed attempt is included as a model score.
+
 ## Next experimental gate
 
 The next run requires a visible model endpoint or GPU allocation. It will compare
