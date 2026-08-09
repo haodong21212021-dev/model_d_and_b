@@ -107,7 +107,9 @@ def load_trajectory(path: Path, root: Path | None = None) -> Trajectory:
     actions: list[str] = []
     for step in raw.get("trajectory", []):
         for action in step.get("actions", []):
-            actions.append(_normalize_action(action))
+            normalized = _normalize_action(action)
+            if not normalized.endswith(":terminate"):
+                actions.append(normalized)
     relative = path.relative_to(root) if root else path
     app = (
         raw.get("app")
@@ -154,38 +156,37 @@ def cluster_trajectories(
     threshold: float = 0.35,
     min_size: int = 2,
 ) -> list[list[Trajectory]]:
-    """Create deterministic connected components under a similarity threshold."""
+    """Greedily form complete-link clusters under a similarity threshold."""
     rows = sorted(
         (trajectory for trajectory in trajectories if trajectory.success),
         key=lambda row: row.path,
     )
-    parent = list(range(len(rows)))
-
-    def find(index: int) -> int:
-        while parent[index] != index:
-            parent[index] = parent[parent[index]]
-            index = parent[index]
-        return index
-
-    def union(left: int, right: int) -> None:
-        left_root, right_root = find(left), find(right)
-        if left_root != right_root:
-            parent[right_root] = left_root
-
-    buckets: dict[tuple[str, str], list[int]] = {}
-    for index, row in enumerate(rows):
-        buckets.setdefault((row.app, row.intent), []).append(index)
-    for indices in buckets.values():
-        for offset, left in enumerate(indices):
-            for right in indices[offset + 1 :]:
-                if similarity(rows[left], rows[right]) >= threshold:
-                    union(left, right)
-
-    groups: dict[int, list[Trajectory]] = {}
-    for index, row in enumerate(rows):
-        groups.setdefault(find(index), []).append(row)
+    buckets: dict[tuple[str, str], list[Trajectory]] = {}
+    for row in rows:
+        buckets.setdefault((row.app, row.intent), []).append(row)
+    groups: list[list[Trajectory]] = []
+    for bucket_rows in buckets.values():
+        bucket_groups: list[list[Trajectory]] = []
+        for row in bucket_rows:
+            compatible = [
+                group
+                for group in bucket_groups
+                if all(similarity(row, member) >= threshold for member in group)
+            ]
+            if compatible:
+                best = max(
+                    compatible,
+                    key=lambda group: (
+                        sum(similarity(row, member) for member in group) / len(group),
+                        -len(group),
+                    ),
+                )
+                best.append(row)
+            else:
+                bucket_groups.append([row])
+        groups.extend(bucket_groups)
     return sorted(
-        (group for group in groups.values() if len(group) >= min_size),
+        (group for group in groups if len(group) >= min_size),
         key=lambda group: (-len(group), group[0].app, group[0].intent),
     )
 
@@ -239,8 +240,15 @@ def build_manifest(
                 "median_steps": sorted(row.steps for row in group)[len(group) // 2],
                 "action_skeleton": _common_action_skeleton(group),
                 "parameter_examples": _parameter_examples(group),
+                "instruction_examples": [row.instruction for row in group],
                 "source_paths": [row.path for row in group],
-                "status": "candidate",
+                "status": (
+                    "needs_review"
+                    if intent == "other"
+                    or (sum(pair_scores) / len(pair_scores) if pair_scores else 1.0)
+                    < 0.45
+                    else "candidate"
+                ),
             }
         )
     successful = [row for row in trajectories if row.success]

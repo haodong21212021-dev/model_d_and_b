@@ -29,6 +29,29 @@ pytest
 The generated manifest records every source path and the normalized action
 skeleton, so clusters can be manually audited before any JavaScript is executed.
 
+## CUA-Gym-Hub skill validation
+
+The calendar pilot verifies one parameterized high-level skill against three
+isolated hardened MockApp sessions:
+
+```bash
+git clone --depth 1 https://github.com/xlang-ai/CUA-Gym-Hub /tmp/CUA-Gym-Hub
+cd /tmp/CUA-Gym-Hub/websites/google_calendar_mock
+npm ci
+CUA_GYM_HARDENED=1 \
+CUA_GYM_ADMIN_TOKEN=skillforge-pilot \
+npm run dev -- --host 127.0.0.1 --port 5173
+
+cd /path/to/this/repository
+npm install
+CUA_GYM_URL=http://127.0.0.1:5173 \
+CUA_GYM_ADMIN_TOKEN=skillforge-pilot \
+npm run check:calendar-skill
+```
+
+The skill receives only the rendered page. Setup and reward inspection use the
+private administrator channel in the validation harness.
+
 ## Pilot gates
 
 The next stages compile approved candidates to restricted NodeREPL functions and

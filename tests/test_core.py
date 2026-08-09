@@ -62,6 +62,14 @@ def test_load_trajectory_normalizes_values_and_coordinates(tmp_path: Path) -> No
                             }
                         ]
                     },
+                    {
+                        "actions": [
+                            {
+                                "name": "computer_use",
+                                "arguments": {"action": "terminate"},
+                            }
+                        ]
+                    },
                 ],
             }
         )
@@ -137,5 +145,9 @@ def test_manifest_is_auditable() -> None:
         "type:<text>",
         "type:<text>",
         "left_click",
+    ]
+    assert skill["instruction_examples"] == [
+        'Create lead "Alice" at "Acme"',
+        'Add new lead "Bob" at "Beta"',
     ]
     assert {"Alice", "Acme", "Bob", "Beta"}.issubset(skill["parameter_examples"])

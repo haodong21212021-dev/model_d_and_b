@@ -1,0 +1,26 @@
+{
+  "name": "skillforge-cua-pilot",
+  "version": "0.1.0",
+  "description": "This repository contains the first reproducible stage of the PoA-to-Node-skill experiment:",
+  "private": true,
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "check:calendar-skill": "node scripts/calendar_mock_skill_pilot.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haodong21212021-dev/model_d_and_b.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/haodong21212021-dev/model_d_and_b/issues"
+  },
+  "homepage": "https://github.com/haodong21212021-dev/model_d_and_b#readme",
+  "devDependencies": {
+    "playwright-core": "^1.62.1"
+  }
+}
