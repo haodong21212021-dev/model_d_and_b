@@ -1,0 +1,56 @@
+extends: /home/tione/notebook/agent/gui-agent/configs/cua_gym/windows_ags_qwen-3-7_plus_v2_demo.yaml
+
+agent:
+  type: qwenvl_v2
+  model: model
+  backend: openai
+  endpoint:
+    base_url: "https://ms-s6g4zvpn-100034032793-sw.gw.ap-zhongwei.ti.tencentcs.com/ms-s6g4zvpn/v1"
+    api_key: "9405d709b9ba76d"
+  action_space: custom_v2
+  params:
+    temperature: 0.0
+    top_p: 0.9
+    top_k: 20
+    max_tokens: 4096
+    max_steps: 20
+    history_text_n: 999
+    history_image_n: 3
+    coord: relative
+    sleep_after_execution: 1.0
+    enable_thinking: false
+    auto_think: false
+    enable_open_url: false
+    enable_open_app: false
+
+run:
+  test_file: /home/tione/notebook/agent_data/skillforge_cua_gym/selected_windows_ags.jsonl
+  result_dir: /home/tione/notebook/agent_data/skillforge_cua_gym/results/qwen35b_a3b_calendar_baseline
+  start_index: 0
+  end_index: 3
+  workers: 1
+  before_action_delay_seconds: 1.0
+  case_max_attempts: 1
+
+ags:
+  waa_client_dir: /home/tione/notebook/agent/Windows_gym/WindowsAgentArena/src/win-arena-container/client
+  local_host: 127.0.0.1
+  server_port: 5000
+  cdp_port: 9222
+  novnc_port: 8006
+  vlc_port: 8080
+  proxy_cdp: true
+  proxy_novnc: false
+  proxy_vlc: false
+  timeout: 7200
+  request_timeout: 180.0
+  keep_sandbox_on_failure: false
+  kill_sandbox_on_close: true
+  env_failure_threshold: 3
+
+windows:
+  default_browser: edge
+  temp_dir: 'C:\tmp'
+  python_command: python
+  action_settle_seconds: 0.1
+  clear_desktop: true
