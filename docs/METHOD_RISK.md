@@ -85,6 +85,17 @@ the rational next step instead of committing full resources.
 | Fixed-frequent-skill and random-skill controls | separates mechanism from added context |
 | Two model backbones | rules out a single-model artifact |
 
+## Revision after the competitive review
+
+`docs/RELATED_WORK.md` records a later finding that changes this analysis. Two
+differentiators assumed open here, a semantic skill representation and verified
+non-parametric skills with cross-model transfer, are already published as W2S
+and SkillGen. The internal name `SkillForge-CUA` also collides with an existing
+paper and a commercial product.
+
+The remaining open axis is cross-implementation grounding, so the go/no-go below
+should target that first rather than skill quality in general.
+
 ## Go/no-go
 
 Run three source-to-target pairs only, with roughly 20 to 30 induced skills and
