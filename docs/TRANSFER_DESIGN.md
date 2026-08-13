@@ -151,7 +151,27 @@ confounds, every transfer experiment reports:
 | End-to-end task success on real software | primary claim; skill-step accuracy is not a substitute |
 | False activation rate | direct measure of the negative-transfer channel |
 | Fallback trigger rate and fallback success | evidence the conservative design works |
-| Success with skills disabled, same tasks and seeds | confirms no aggregate harm |
-| Most-frequent-skill baseline | the control that defeated the published pipeline |
-| Random-skill baseline | separates skill content from extra prompt context |
 | Cross-model consistency | rules out a single-model artifact |
+
+### Translating the trivial control to this setting
+
+The published pipeline was beaten by a frequency prior: a predictor that ignores
+its input and always emits the most common skill label. That control works there
+because the task is next-skill classification over an imbalanced label set, where
+a constant answer already scores well.
+
+This project measures end-to-end task success under programmatic rewards, so a
+constant label predictor has no meaning. The control has to be reformulated as a
+system that imitates the outward behaviour of skill injection while removing the
+part claimed to matter, namely choosing the right skill for the state.
+
+| Control | Construction | What it rules out if it matches the full system |
+|---|---|---|
+| No skills | primitive agent, same tasks and seeds | skills contribute nothing |
+| Fixed frequent skills | inject the k most frequently used skills for the application, no retrieval | semantic retrieval and contract matching add nothing over a static toolbox |
+| Random skills | inject k skills drawn at random from the library | the gain came from extra context or examples, not from skill content |
+| Unverified skills | admit induced skills without counterfactual validation | the validation stage adds nothing |
+
+The fixed-frequent-skills arm is the direct analogue of the frequency prior and
+is the one a reviewer will ask for, since it isolates retrieval quality from mere
+availability of a few common skills.
