@@ -68,6 +68,11 @@ Result: **3/3 verified**. This proves parameter substitution and programmatic
 reward validation work end to end. It does not yet establish an agent-level
 success-rate improvement.
 
+The `createCalendarEvent` function used here was **written by hand**, not induced
+by the discovery pipeline. The result therefore validates the harness, not the
+induction stage. Reading it as evidence that mining produces skills of this
+quality would be a mistake.
+
 ## Frozen CUA-Gym split
 
 The public task index currently exposes 10,910 tasks, including 1,075 MockApp
