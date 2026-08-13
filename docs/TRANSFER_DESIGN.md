@@ -87,3 +87,71 @@ an evaluation task.
 If real SaaS-style web transfer becomes a goal, the target should be a benchmark
 built on real deployed web software rather than a desktop benchmark. That is a
 separate axis from the desktop claim above and should not be mixed into it.
+
+## The published negative-transfer precedent
+
+`Automating SKILL.md Generation for Computer-Using Agents via Interaction
+Trajectory Mining` (arXiv 2606.20363) ran the closest published pipeline to the
+one proposed here: segment GUI trajectories, cluster segments into skills, then
+train a skill-aware policy on the induced vocabulary. Its source benchmark is
+synthetic and its transfer checks include WebArena, so the structure matches a
+synthetic-to-real setting.
+
+Reported outcome:
+
+| Metric | Zero-shot | After GRPO |
+|---|---:|---:|
+| Source skill-step accuracy | 18.5% | 20.5% |
+| WebArena skill-step accuracy | 55.8% | 44.2% |
+| BrowseComp+ skill-step accuracy | 43.5% | 43.3% |
+
+Two properties of that result matter for reading it correctly. The metric is
+next-skill prediction accuracy, not end-to-end task success. And the drop follows
+from updating model weights toward a source-domain skill taxonomy, not from
+attaching skills at inference time.
+
+The mechanism is visible in their target-domain diagnostics: with the source
+segmentation threshold, boundary F1 on WebArena falls to 0.119, and the induced
+embedding reaches NMI 0.049 with silhouette -0.255. The skill boundaries and
+categories learned from synthetic trajectories effectively do not exist in the
+target domain, so fine-tuning toward them degraded ability the base model already
+had. A most-frequent-skill baseline also beat their learned policies on the source
+domain, which indicates the learned components captured class imbalance rather
+than reusable composition structure.
+
+### What this changes in this project
+
+The dominant failure mode does not apply to a non-parametric design. Skills are
+retrieved and executed at inference time and model weights are never updated, so
+base capability cannot be destroyed; an unhelpful skill can at worst go unused.
+
+A different negative-transfer channel does apply: **false activation**. A skill
+induced on a mock application can be retrieved in a real application, execute
+incorrectly, consume the step budget, and leave the environment in a state from
+which the task can no longer be completed. In the recorded baseline, six of ten
+failures already exhausted the action budget, so wasted steps are a live risk
+rather than a hypothetical one. Preconditions, postconditions, and fallback to
+primitive actions are the controls against this channel, not optional polish.
+
+The result is also a warning about representation. Clustering by action signature
+is source-bound. The first discovery run in this project reproduced a small
+version of the same failure: browser tasks for enabling Do Not Track and for
+changing default font size were merged into one candidate purely because their
+click skeletons matched. That is why candidates now carry instruction examples
+and a review status, and why the skill representation must be semantic rather
+than a coordinate or DOM action sequence.
+
+### Metrics that must be reported
+
+To avoid repeating the precedent, and to let a reviewer rule out the same
+confounds, every transfer experiment reports:
+
+| Metric | Purpose |
+|---|---|
+| End-to-end task success on real software | primary claim; skill-step accuracy is not a substitute |
+| False activation rate | direct measure of the negative-transfer channel |
+| Fallback trigger rate and fallback success | evidence the conservative design works |
+| Success with skills disabled, same tasks and seeds | confirms no aggregate harm |
+| Most-frequent-skill baseline | the control that defeated the published pipeline |
+| Random-skill baseline | separates skill content from extra prompt context |
+| Cross-model consistency | rules out a single-model artifact |
