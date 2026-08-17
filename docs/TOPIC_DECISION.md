@@ -4,7 +4,9 @@ Date: 2026-08-17
 
 ## 一句话
 
-**在 CUA-Gym MockApp 上，用可验证奖励把高频成功子轨迹编译成宏动作（macro actions），再按 UltraCUA / ToolCUA 的 hybrid-action 配方做 SFT + 轻量多轮 RL，把“何时调宏动作 / 何时回退 GUI”蒸馏进 7B–14B 策略，并在 WAA / OSWorld 上测真机泛化。**
+**主问题（2026-08-17 修订）：** MockApp 上用 programmatic reward 验收过的宏动作，换到真实软件实现时，作为 hybrid 动作是正迁移、无效，还是负迁移？
+
+**载体方法：** 仍可用 CUA-Gym 挖 verification-gated macros，并用 UltraCUA/ToolCUA 式 hybrid SFT + 轻量多轮 RL 训 7B–14B；但这是实验载体，**不是**相对那三篇的 novelty 来源。详见 `docs/NOVELTY_AUDIT.md`。
 
 内部工作名可用 `MacroAct-CUA`；不要再用 `SkillForge-CUA` 作为对外名。
 
