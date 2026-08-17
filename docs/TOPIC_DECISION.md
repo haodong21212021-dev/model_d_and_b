@@ -24,7 +24,7 @@ Date: 2026-08-17
 | DART-GUI | 高效 GUI RL | 解耦 rollout/训练，7B 可跑通 |
 | CUA-Gym / GUI-GENESIS | 可验证合成环境 | Mock/合成 env → 后训练 → 真机迁移 |
 
-做同类工作（hybrid action + 可验证合成环境 + SFT/轻量 RL），审稿人已有接受模板，**同质化也能发**；这比纯诊断论文或纯非参数 skill 注入更贴当前主赛道。
+**注意：** “同质化 hybrid SFT/RL” alone **不够发**。UltraCUA / ToolCUA / CUA-Gym 已把该模板占满；必须把 claim 立在 **跨实现宏动作接地**，并把那三篇降为配方引用。
 
 ### 明确放弃的方向
 
@@ -36,18 +36,17 @@ Date: 2026-08-17
 | 再做一个通用真实 App benchmark | OSWorld / WAA / SaaS-Bench 已存在 |
 | 70B+ 全参 online RL | 超出 8×H20 + 8×A800 的稳妥包络 |
 
-### 相对 UltraCUA / ToolCUA 的楔子（必须守住）
+### 相对 UltraCUA / ToolCUA / CUA-Gym 的楔子（修订后）
 
-两者的高层动作来自 **文档/代码 API** 或 **对静态 GUI 轨迹的 LLM 合成 tool**，诱导阶段**不要求环境奖励通过**。
+旧楔子 “verification-first + Mock 训练迁真机” **不够**：ToolCUA 已轨迹合成 tool，CUA-Gym 已 Mock RLVR→OSWorld/WebArena。
 
-我们的楔子：
+必须守住的楔子：
 
-1. **宏动作必须先在 MockApp 上通过 programmatic reward 才进入动作空间**（verification-first）。
-2. 训练信号来自 **CUA-Gym 可验证合成环境**，评测落在 **真桌面（WAA/OSWorld）**，回答 ToolCUA 没有单独做成主问题的点：  
-   **只在 Mock 上验证过的宏动作，作为 hybrid action 训练信号，能否提升真机成功率与步数效率？**
-3. 宏动作失败必须 **fallback 到 GUI 原语**，并报告 false activation / fallback success（承接 Auto-SKILL.md 的负迁移教训，但改成 parametric hybrid 设定）。
+1. **配对 Mock↔Real 应用**，把单个宏动作的跨实现执行当作一等测量对象（不是只报整体 SR）。
+2. **verification-gated vs unverified**、no/random/frequent macro 全套对照，解释正/负迁移机制。
+3. 可选区分于 ToolCUA：宏动作主要作 **train-time recovery scaffold**（近 SGCD），部署可弱化或关闭，避免“又一个 hybrid tool CUA”。
 
-不宣称“可执行 skill 表示”或“执行级验证”本身是新贡献（ASI/SkillGen 已有）；宣称的是 **verification-first macro action space + Mock→Real hybrid policy training**。
+不宣称 hybrid SFT/RL、可执行 skill、Mock RLVR 迁移本身是新贡献。
 
 ## 裁缝清单（写作时直接挂）
 
